@@ -54,7 +54,7 @@ namespace VkApiDll
 
 
 
-        private static string SendRequest(string method_name, Dictionary<string, string> parameters)
+        private string SendRequest(string method_name, Dictionary<string, string> parameters)
         {
             WebClient webClient = new WebClient();
             webClient.Encoding = System.Text.Encoding.UTF8;
@@ -68,7 +68,7 @@ namespace VkApiDll
             return webClient.DownloadString("https://api.vk.com/method/" + method_name);
         }
 
-        private static T ParseResponse<T>(string jsonResponse)
+        private T ParseResponse<T>(string jsonResponse)
         {
             using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(jsonResponse)))
             {
@@ -77,7 +77,7 @@ namespace VkApiDll
             }
         }
 
-        public static VkApiResponse<UserDTO> GetGroupsMembers(String groupId)
+        public VkApiResponse<UserDTO> GetGroupsMembers(String groupId)
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>();
             parameters.Add("group_id", groupId);
@@ -86,7 +86,7 @@ namespace VkApiDll
             return ParseResponse<VkApiResponse<UserDTO>>(json);
         }
 
-        public static int[] GetGroupsMembersIds(String groupId)
+        public int[] GetGroupsMembersIds(String groupId)
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>();
             parameters.Add("group_id", groupId);
@@ -94,7 +94,7 @@ namespace VkApiDll
             return ParseResponse<VkApiResponse<int>>(json).Response.Items;
         }
 
-        public static VkApiResponse<UserDTO> GetFriends(String userId)
+        public VkApiResponse<UserDTO> GetFriends(String userId)
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>();
             parameters.Add("user_id", userId);
@@ -103,7 +103,7 @@ namespace VkApiDll
             return ParseResponse<VkApiResponse<UserDTO>>(json);
         }
 
-        public static UserDTO GetUserByUsername(String username)
+        public UserDTO GetUserByUsername(String username)
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>();
             parameters.Add("user_ids", username);
@@ -112,7 +112,7 @@ namespace VkApiDll
             return ParseResponse<VkApiResponse>(json).Response[0];
         }
 
-        public static VkApiResponse<PostDTO> Get100Posts(String ownerId, int offset, int count)
+        public VkApiResponse<PostDTO> Get100Posts(String ownerId, int offset, int count)
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>();
             parameters.Add("owner_id", ownerId);
