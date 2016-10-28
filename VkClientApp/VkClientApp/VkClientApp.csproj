@@ -4,16 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8F4E9A0D-637B-4594-B1B0-B3D77DFBB94B}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{8C90A952-3736-43BA-8548-D23253F1116C}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VkApiDll</RootNamespace>
-    <AssemblyName>VkApiDll</AssemblyName>
+    <RootNamespace>VkClientApp</RootNamespace>
+    <AssemblyName>VkClientApp</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,22 +34,25 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="VkApiDll">
+      <HintPath>..\..\VkApi\VkApi\bin\Debug\VkApiDll.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Serialization\PostAttachments.cs" />
-    <Compile Include="Serialization\PostDTO.cs" />
-    <Compile Include="Serialization\PostReaction.cs" />
-    <Compile Include="Serialization\UserDTO.cs" />
-    <Compile Include="VkApi.cs" />
+    <Compile Include="VkClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Serialization\VkApiResponse.cs" />
-    <Compile Include="Serialization\VkApiResponseContent.cs" />
+    <Compile Include="VkPost.cs" />
+    <Compile Include="VkPostAttachments.cs" />
+    <Compile Include="VkUser.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
