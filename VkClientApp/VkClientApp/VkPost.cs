@@ -16,7 +16,7 @@ namespace VkClientApp
         public int CommentsCount { get; private set; }
         public int LikesCount { get; private set; }
         public int RepostsCount { get; private set; }
-        public VkPostAttachments[] Attachments { get; private set; }
+        public VkPostAttachment[] Attachments { get; private set; }
 
         public VkPost(PostDTO post)
         {
@@ -27,7 +27,15 @@ namespace VkClientApp
             CommentsCount = post.Comments.Count;
             LikesCount = post.Likes.Count;
             RepostsCount = post.Reposts.Count;
-            Attachments = new VkPostAttachments[post.Attachments.Length];
+
+            if (post.Attachments != null)
+            {
+                Attachments = new VkPostAttachment[post.Attachments.Length];
+                for (int i = Attachments.Length; i > 0; i--)
+                {
+                    Attachments[i] = new VkPostAttachment(post.Attachments[i]);
+                }
+            }
         }
     }
 }

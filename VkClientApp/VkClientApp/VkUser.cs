@@ -29,7 +29,9 @@ namespace VkClientApp
 
         public void SetFriends()
         {
-            VkApiResponse<UserDTO> friendsResp = VkApi.GetFriends(Id.ToString());
+            VkApi vkApi = new VkApi();
+
+            VkApiResponse<UserDTO> friendsResp = vkApi.GetFriends(Id.ToString());
 
             if (friendsResp.Response != null)
             {

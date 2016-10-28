@@ -12,55 +12,21 @@ namespace VkClientApp
         public VkClient()
         {
             /*------------------------- OAuth авторизация -------------------------*/
-            Console.WriteLine("Сейчас откроется вкладка браузера, необходимо скопировать из строки браузера access_token, для продолжения нажмите любую клавишу..");
-            Console.ReadKey();
+            //Console.WriteLine("Сейчас откроется вкладка браузера, необходимо скопировать из строки браузера access_token, для продолжения нажмите любую клавишу..");
+            //Console.ReadKey();
 
-            Process.Start("https://oauth.vk.com/authorize?client_id=" + VkApi.ClientId + "&display=popup&redirect_uri=" + VkApi.RedirectUri + "&scope=" + VkApi.Scope + "&response_type=token&v=" + VkApi.Version);
+            //Process.Start("https://oauth.vk.com/authorize?client_id=" + VkApi.ClientId + "&display=popup&redirect_uri=" + VkApi.RedirectUri + "&scope=" + VkApi.Scope + "&response_type=token&v=" + VkApi.Version);
 
-            Console.WriteLine("Теперь вставляйте access_token: ");
-            VkApi.VkAccessToken = (Console.ReadLine());
+            //Console.WriteLine("Теперь вставляйте access_token: ");
+            //VkApi.VkAccessToken = (Console.ReadLine());
             /*---------------------------------------------------------------------*/
 
-            //VkApi.SetVkAccessToken("6bcd98b589fcbebc5590ed47df4ca77d61ed1dba6ebf33fcaa5ee277296c882c39c51e824c9a84a34fc27");
+            VkApi.VkAccessToken = "e2a492172d5982be8e5f991aa4634783028d56d25d4f4ce708866f3347d977d333249372f6198c15447c1";
         }
 
         public void OAuth()
         {
             //Webbrowser.Navigate(VkApi.AuthUrl);
-        }
-
-        public List<PostDTO> GetNews(VkUser user)
-        {
-            List<PostDTO> newsList = null;
-            if (user.FriendsList != null)
-            {
-                newsList = new List<PostDTO>();
-
-                foreach (VkUser friend in user.FriendsList)
-                {
-                    List<PostDTO> friendWall = GetWall(friend.Id.ToString());
-                    if (friendWall != null)
-                    {
-                        foreach (PostDTO post in friendWall)
-                        {
-                            newsList.Add(post);
-                        }
-                    }
-                }
-                return newsList;
-            }
-            return newsList;
-        }
-
-        public List<PostDTO> SortNews(List<PostDTO> newsList)
-        {
-            newsList.Sort(Comparer<PostDTO>.Create((post1, post2) => post2.Likes.Count - post1.Likes.Count));
-            return newsList;
-        }
-
-        public List<PostDTO> GetSortedNews(VkUser user)
-        {
-            return SortNews(GetNews(user));
         }
 
         public static List<VkUser> GetGroupMembersGraph(String groupName)
@@ -103,50 +69,6 @@ namespace VkClientApp
             return user;
         }
 
-        public List<PostDTO> GetWall(String ownerId)
-        {
-            int offset = 0;
-            int count = 100;
-
-            VkApi ApiObj = new VkApi(); 
-
-            List<PostDTO> postsList = null;
-
-            VkApiResponse<PostDTO> resp = ApiObj.Get100Posts(ownerId, offset, count);
-
-            if (resp.Response == null || resp.Response.Count == 0)
-            {
-                return postsList;
-            }
-            else
-            {
-                postsList = new List<PostDTO>(resp.Response.Count);
-
-                int i = resp.Response.Count;
-                while (i > 0)
-                {
-                    Thread.Sleep(330);
-                    if (resp.Response != null)
-                    {
-                        foreach (PostDTO post in resp.Response.Items)
-                        {
-                            postsList.Add(post);
-                        }
-
-                        if (i > 100)
-                        {
-                            offset += 100;
-                            resp = ApiObj.Get100Posts(ownerId, offset, count);
-                        }
-                        i -= 100;
-                    }
-                }
-
-                return postsList;
-            }
-        }
-
-
         static void Main(string[] args)
         {
             Stopwatch timeGetMembersFriends = new Stopwatch();  /*  Старт секндомера */
@@ -168,7 +90,7 @@ namespace VkClientApp
             String strN = Console.ReadLine();
 
             int numberOfMember = -1;
-            List<PostDTO> usersSortedNews = null;
+            VkWall usersSortedNews = null;
 
             try
             {
@@ -176,9 +98,10 @@ namespace VkClientApp
 
                 if (numberOfMember > 0 && numberOfMember <= groupUsers.Response.Count)
                 {
+                    usersSortedNews = new VkWall();
                     VkUser currentUser = vkClient.GetUserGraphByUsername(groupUsers.Response.Items[numberOfMember - 1].Id.ToString());
-
-                    usersSortedNews = vkClient.GetSortedNews(currentUser);
+                     
+                    usersSortedNews.GetSortedNews(currentUser);
                 }
             }
             catch (FormatException e)
@@ -189,24 +112,29 @@ namespace VkClientApp
             int lastPostOwnerId = 0;
             UserDTO curr = null;
 
-            int k = 0;
-            foreach (PostDTO post in usersSortedNews)
+            if (usersSortedNews != null)
             {
-                if (k++ >= 99) break;
-
-                if (lastPostOwnerId != post.OwnerId)
+                int k = 0;
+                foreach (VkPost post in usersSortedNews.PostList)
                 {
-                    lastPostOwnerId = post.OwnerId;
-                    curr = apiObj.GetUserByUsername(post.OwnerId.ToString());
-                    Thread.Sleep(330);
+                    if (k++ >= 99) break;
+
+                    if (lastPostOwnerId != post.OwnerId)
+                    {
+                        lastPostOwnerId = post.OwnerId;
+                        curr = apiObj.GetUserByUsername(post.OwnerId.ToString());
+                        Thread.Sleep(330);
+                    }
+                    Console.WriteLine(k + ". Владелец стены: " + curr.LastName + " " + curr.FirstName +
+                                      " Количество лайков:" + post.LikesCount + " Текст: " + post.Text);
                 }
-                Console.WriteLine("Владелец стены: " + curr.LastName + " " + curr.FirstName +
-                                  " Количество лайков:" + post.Likes.Count + " Текст: " + post.Text);
+                //List<VkUser> groupMembersList = Class.GetGroupMembersGraph(groupName);  
+                //273
+                Console.WriteLine("Количество постов в списке: " + usersSortedNews.PostList.Count);
+                Console.WriteLine("Вывели первые " + k + 1 + " задач по популярности.");
             }
-            //List<VkUser> groupMembersList = Class.GetGroupMembersGraph(groupName);  
-            //273
-            Console.WriteLine("Количество постов в списке: " + usersSortedNews.Count);
-            Console.WriteLine("Вывели первые " + k + 1 + " задач по популярности.");
+            else Console.WriteLine("Список записей пуст!");
+            
 
 
             /*---------------------------------------------------------------------*/

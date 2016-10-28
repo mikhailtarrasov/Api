@@ -5,8 +5,13 @@ namespace VkApiDll
     [DataContract]
     public class PostDTO
     {
-        [DataMember(Name = "id")] 
+        [DataMember(Name = "id")]
         private int _id;
+        public int Id
+        {
+            get { return _id; }
+            internal set { _id = value; }
+        }
 
         [DataMember(Name = "owner_id")] 
         private int _ownerId;
@@ -27,13 +32,8 @@ namespace VkApiDll
         private PostReaction _reposts;
 
         [DataMember(Name = "PostAttachments")] 
-        private PostAttachments[] _attachments;
+        private PostAttachment[] _attachments;
 
-        public int Id
-        {
-            get { return _id; }
-            internal set { _id = value; }
-        }
 
         public int OwnerId
         {
@@ -71,7 +71,7 @@ namespace VkApiDll
             internal set { _reposts = value; }
         }
 
-        public PostAttachments[] Attachments
+        public PostAttachment[] Attachments
         {
             get { return _attachments; }
             internal set { _attachments = value; }

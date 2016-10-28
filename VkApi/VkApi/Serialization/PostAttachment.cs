@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace VkApiDll
 {
     [DataContract]
-    public class PostAttachments
+    public class PostAttachment
     {
         [DataMember(Name = "type")] 
         private String _type;

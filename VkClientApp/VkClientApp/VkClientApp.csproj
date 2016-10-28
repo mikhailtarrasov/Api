@@ -48,8 +48,9 @@
     <Compile Include="VkClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VkPost.cs" />
-    <Compile Include="VkPostAttachments.cs" />
+    <Compile Include="VkPostAttachment.cs" />
     <Compile Include="VkUser.cs" />
+    <Compile Include="VkWall.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
