@@ -7,15 +7,9 @@ using VkApiDll;
 
 namespace VkClientApp
 {
-    class VkPostAttachment
+    public class VkPostAttachment
     {
-        private String _type;
-
-        public string Type
-        {
-            get { return _type; }
-            set { _type = value; }
-        }
+        public string Type { get; set; }
 
         public VkPostAttachment(PostAttachment postAttachment)
         {

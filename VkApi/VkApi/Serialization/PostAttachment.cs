@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using VkApiDll.Serialization;
 
 namespace VkApiDll
 {
     [DataContract]
     public class PostAttachment
     {
-        [DataMember(Name = "type")] 
-        private String _type;
+        [DataMember(Name = "type")]
+        public string Type { get; internal set; }
 
-        public string Type
-        {
-            get { return _type; }
-            set { _type = value; }
-        }
+        // Тут должна быть переменная у которой тип - это значение строки Type
 
         // TODO this class
     }

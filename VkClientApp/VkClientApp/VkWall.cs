@@ -7,15 +7,9 @@ using VkApiDll;
 
 namespace VkClientApp
 {
-    class VkWall
+    public class VkWall
     {
-        private List<VkPost> _postList;
-
-        public List<VkPost> PostList
-        {
-            get { return _postList; }
-            private set { _postList = value; }
-        }
+        public List<VkPost> PostList { get; private set; }
 
         public VkWall()
         {

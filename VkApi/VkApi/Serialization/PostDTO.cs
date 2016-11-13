@@ -6,75 +6,27 @@ namespace VkApiDll
     public class PostDTO
     {
         [DataMember(Name = "id")]
-        private int _id;
-        public int Id
-        {
-            get { return _id; }
-            internal set { _id = value; }
-        }
+        public int Id { get; internal set; }
 
-        [DataMember(Name = "owner_id")] 
-        private int _ownerId;
+        [DataMember(Name = "owner_id")]
+        public int OwnerId { get; internal set; }
 
-        [DataMember(Name = "from_id")] 
-        private int _fromId;
+        [DataMember(Name = "from_id")]
+        public int FromId { get; internal set; }
 
-        [DataMember(Name = "text")] 
-        private string _text;
+        [DataMember(Name = "text")]
+        public string Text { get; internal set; }
 
-        [DataMember(Name = "comments")] 
-        private PostReaction _comments;
+        [DataMember(Name = "comments")]
+        public PostReaction Comments { get; internal set; }
 
-        [DataMember(Name = "likes")] 
-        private PostReaction _likes;
+        [DataMember(Name = "likes")]
+        public PostReaction Likes { get; internal set; }
 
-        [DataMember(Name = "reposts")] 
-        private PostReaction _reposts;
+        [DataMember(Name = "reposts")]
+        public PostReaction Reposts { get; internal set; }
 
-        [DataMember(Name = "PostAttachments")] 
-        private PostAttachment[] _attachments;
-
-
-        public int OwnerId
-        {
-            get { return _ownerId; }
-            internal set { _ownerId = value; }
-        }
-
-        public int FromId
-        {
-            get { return _fromId; }
-            internal set { _fromId = value; }
-        }
-
-        public string Text
-        {
-            get { return _text; }
-            internal set { _text = value; }
-        }
-
-        public PostReaction Comments
-        {
-            get { return _comments; }
-            internal set { _comments = value; }
-        }
-
-        public PostReaction Likes
-        {
-            get { return _likes; }
-            internal set { _likes = value; }
-        }
-
-        public PostReaction Reposts
-        {
-            get { return _reposts; }
-            internal set { _reposts = value; }
-        }
-
-        public PostAttachment[] Attachments
-        {
-            get { return _attachments; }
-            internal set { _attachments = value; }
-        }
+        [DataMember(Name = "PostAttachments")]
+        public PostAttachment[] Attachments { get; internal set; }
     }
 }

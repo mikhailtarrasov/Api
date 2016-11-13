@@ -5,22 +5,10 @@ namespace VkApiDll
     [DataContract]
     public class VkApiResponseContent<T>
     {
-        [DataMember(Name = "count")] 
-        private int _count;
+        [DataMember(Name = "count")]
+        public int Count { get; internal set; }
 
-        [DataMember(Name = "items")] 
-        private T[] _items;
-
-        public int Count
-        {
-            get { return _count; }
-            set { _count = value; }
-        }
-
-        public T[] Items
-        {
-            get { return _items; }
-            set { _items = value; }
-        }
+        [DataMember(Name = "items")]
+        public T[] Items { get; internal set; }
     }
 }

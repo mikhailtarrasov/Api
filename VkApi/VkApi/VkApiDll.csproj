@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Serialization\CurrAttachment.cs" />
     <Compile Include="Serialization\PostAttachment.cs" />
     <Compile Include="Serialization\PostDTO.cs" />
     <Compile Include="Serialization\PostReaction.cs" />

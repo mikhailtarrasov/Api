@@ -6,39 +6,15 @@ namespace VkApiDll
     public class UserDTO
     {
         [DataMember(Name = "id")]
-        private int _id;
+        public int Id { get; internal set; }
 
-        [DataMember(Name = "first_name")] 
-        private string _firstName;
+        [DataMember(Name = "first_name")]
+        public string FirstName { get; internal set; }
 
-        [DataMember(Name = "last_name")] 
-        private string _lastName;
+        [DataMember(Name = "last_name")]
+        public string LastName { get; internal set; }
 
-        [DataMember(Name = "photo_50")] 
-        private string _photo50;
-
-        public int Id
-        {
-            get { return _id; }
-            internal set { _id = value; }
-        }
-
-        public string FirstName
-        {
-            get { return _firstName; }
-            internal set { _firstName = value; }
-        }
-
-        public string LastName
-        {
-            get { return _lastName; }
-            internal set { _lastName = value; }
-        }
-
-        public string Photo50
-        {
-            get { return _photo50; }
-            internal set { _photo50 = value; }
-        }
+        [DataMember(Name = "photo_50")]
+        public string Photo50 { get; internal set; }
     }
 }

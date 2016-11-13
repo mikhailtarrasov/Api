@@ -15,13 +15,7 @@ namespace VkApiDll
         private const string clientSecret = "RXPswbMZNISw6pVpp56H";
         private const string version = "5.57";
 
-        private static string _vkAccessToken;
-
-        public static string VkAccessToken
-        {
-            get { return _vkAccessToken; }
-            set { _vkAccessToken = value; }
-        }
+        public static string VkAccessToken { get; set; }
 
         public static int ClientId
         {
@@ -47,7 +41,6 @@ namespace VkApiDll
         {
             get { return version; }
         }
-
 
 
         /*--------------------------------------------------------------------------------------------------------------*/

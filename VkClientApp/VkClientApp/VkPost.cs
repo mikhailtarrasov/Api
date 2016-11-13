@@ -7,7 +7,7 @@ using VkApiDll;
 
 namespace VkClientApp
 {
-    class VkPost
+    public class VkPost
     {
         public int Id { get; private set; }
         public int OwnerId { get; private set; }

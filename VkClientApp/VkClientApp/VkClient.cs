@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using VkApiDll;
+using System.Windows.Controls;
 using System.Windows.Forms;
+using VkApiDll;
 
 namespace VkClientApp
 {
-    class VkClient
+    public class VkClient
     {
         public VkClient()
         {
@@ -21,19 +22,52 @@ namespace VkClientApp
             //VkApi.VkAccessToken = (Console.ReadLine());
             /*---------------------------------------------------------------------*/
 
-            VkApi.VkAccessToken = "e2a492172d5982be8e5f991aa4634783028d56d25d4f4ce708866f3347d977d333249372f6198c15447c1";
+            VkApi.VkAccessToken = "18de562f410e666c474bd44c5f2b0943535e14869401f08fb41650b17d1b1d209ee3ef4d501ddf0b32bed";
+
+            //OAuth();
         }
 
-        public void OAuth()
+        //public void OAuth()
+        //{
+        //    string authUrl = "https://oauth.vk.com/authorize?client_id=" + VkApi.ClientId + "&display=popup&redirect_uri=" + VkApi.RedirectUri +
+        //                     "&scope=" + VkApi.Scope + "&response_type=token&v=" + VkApi.Version;
+
+        //    WebBrowser browser = new WebBrowser();
+        //    browser.Navigate(authUrl);
+        //}
+        public List<VkUser> GetVkGroupsMembers(String groupId)
         {
-            //Webbrowser.Navigate(VkApi.AuthUrl);
+            VkApi api = new VkApi();
+            List<VkUser> listVkUsers = null;
+
+            VkApiResponse<UserDTO> response = api.GetGroupsMembers(groupId);
+
+            if (response != null)
+            {
+                if (response.Response.Count > 0)
+                {
+                    listVkUsers = new List<VkUser>();
+                    foreach (UserDTO user in response.Response.Items)
+                    {
+                        listVkUsers.Add(new VkUser(user));
+                    }
+                }
+            }
+            return listVkUsers;
         }
 
-        public static List<VkUser> GetGroupMembersGraph(String groupName)
+        public VkUser GetVkUserByUsername(String username)
         {
-            VkApi ApiObj = new VkApi();
+            VkApi api = new VkApi();
 
-            VkApiResponse<UserDTO> resp = ApiObj.GetGroupsMembers(groupName);
+            return new VkUser(api.GetUserByUsername(username));
+        }
+
+        public List<VkUser> GetGroupMembersGraph(String groupName)
+        {
+            VkApi api = new VkApi();
+
+            VkApiResponse<UserDTO> resp = api.GetGroupsMembers(groupName);
 
             List<VkUser> groupMembersGraph = new List<VkUser>(resp.Response.Count);
             int i = 0;
@@ -67,95 +101,6 @@ namespace VkClientApp
             VkUser user = new VkUser(ApiObj.GetUserByUsername(username));
             user.SetFriends();
             return user;
-        }
-
-        static void Main(string[] args)
-        {
-            Stopwatch timeGetMembersFriends = new Stopwatch();  /*  Старт секндомера */
-            timeGetMembersFriends.Start();                      /*                   */
-
-            VkApi apiObj = new VkApi();
-            VkClient vkClient = new VkClient();
-
-            String groupName = "csu_iit";
-            VkApiResponse<UserDTO> groupUsers = apiObj.GetGroupsMembers(groupName);
-
-            int i = 1;
-            foreach (UserDTO grUser in groupUsers.Response.Items)
-            {
-                Console.WriteLine(i++ + ". " + grUser.LastName + " " + grUser.FirstName);
-            }
-
-            Console.WriteLine("Введите номер участника группы для получения его новостей: ");
-            String strN = Console.ReadLine();
-
-            int numberOfMember = -1;
-            VkWall usersSortedNews = null;
-
-            try
-            {
-                numberOfMember = Int32.Parse(strN);
-
-                if (numberOfMember > 0 && numberOfMember <= groupUsers.Response.Count)
-                {
-                    usersSortedNews = new VkWall();
-                    VkUser currentUser = vkClient.GetUserGraphByUsername(groupUsers.Response.Items[numberOfMember - 1].Id.ToString());
-                     
-                    usersSortedNews.GetSortedNews(currentUser);
-                }
-            }
-            catch (FormatException e)
-            {
-                Console.WriteLine(e.Message);
-            }
-
-            int lastPostOwnerId = 0;
-            UserDTO curr = null;
-
-            if (usersSortedNews != null)
-            {
-                int k = 0;
-                foreach (VkPost post in usersSortedNews.PostList)
-                {
-                    if (k++ >= 99) break;
-
-                    if (lastPostOwnerId != post.OwnerId)
-                    {
-                        lastPostOwnerId = post.OwnerId;
-                        curr = apiObj.GetUserByUsername(post.OwnerId.ToString());
-                        Thread.Sleep(330);
-                    }
-                    Console.WriteLine(k + ". Владелец стены: " + curr.LastName + " " + curr.FirstName +
-                                      " Количество лайков:" + post.LikesCount + " Текст: " + post.Text);
-                }
-                //List<VkUser> groupMembersList = Class.GetGroupMembersGraph(groupName);  
-                //273
-                Console.WriteLine("Количество постов в списке: " + usersSortedNews.PostList.Count);
-                Console.WriteLine("Вывели первые " + k + 1 + " задач по популярности.");
-            }
-            else Console.WriteLine("Список записей пуст!");
-            
-
-
-            /*---------------------------------------------------------------------*/
-            timeGetMembersFriends.Stop();
-            Console.WriteLine("Время работы: " + FormatTime(timeGetMembersFriends));
-            /*---------------------------------------------------------------------*/
-
-
-
-            Console.ReadKey();
-        }
-
-        public static String FormatTime(Stopwatch time)
-        {
-            // Get the elapsed time as a TimeSpan value.
-            TimeSpan ts = time.Elapsed;
-
-            // Format and display the TimeSpan value.
-            return String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                ts.Hours, ts.Minutes, ts.Seconds,
-                ts.Milliseconds / 10);
         }
     }
 }
