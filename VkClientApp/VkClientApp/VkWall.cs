@@ -25,24 +25,18 @@ namespace VkClientApp
 
             VkApiResponse<PostDTO> resp = ApiObj.Get100Posts(vkUser.Id.ToString(), offset, count);
 
-            if (resp.Response == null || resp.Response.Count == 0)
-            {
-                return false;
-            }
+            if (resp.Response == null || resp.Response.Count == 0) return false;
             else
             {
                 PostList = new List<VkPost>(resp.Response.Count);
 
                 for (int i = resp.Response.Count; i > 0; i -= 100)
                 {
-                    Thread.Sleep(330);
+                    //Thread.Sleep(330);
                     if (resp.Response != null)
                     {
                         foreach (PostDTO post in resp.Response.Items)
-                        {
-                            VkPost vkPost = new VkPost(post);
-                            PostList.Add(vkPost);
-                        }
+                            PostList.Add(new VkPost(post));
 
                         if (i > 100)
                         {
@@ -66,12 +60,8 @@ namespace VkClientApp
                     VkWall friendWall = new VkWall();
 
                     if (friendWall.GetUserWall(friend))     // Если стена есть
-                    {
                         foreach (VkPost post in friendWall.PostList)
-                        {
                             PostList.Add(post);
-                        }
-                    }
                 }
                 if (PostList.Count() > 0) return true;      // Если новостная лента НЕ пустая
             }

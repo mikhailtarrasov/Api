@@ -16,37 +16,14 @@ namespace VkApiDll
         private const string version = "5.57";
 
         public static string VkAccessToken { get; set; }
-
-        public static int ClientId
-        {
-            get { return client_id; }
-        }
-
-        public static string RedirectUri
-        {
-            get { return redirect_uri; }
-        }
-
-        public static string Scope
-        {
-            get { return scope; }
-        }
-
-        public static string ClientSecret
-        {
-            get { return clientSecret; }
-        }
-
-        public static string Version
-        {
-            get { return version; }
-        }
+        public static int ClientId { get { return client_id; } }
+        public static string RedirectUri { get { return redirect_uri; } }
+        public static string Scope { get { return scope; } }
+        public static string ClientSecret { get { return clientSecret; } }
+        public static string Version { get { return version; } }
 
 
-        /*--------------------------------------------------------------------------------------------------------------*/
-
-
-
+        
         private string SendRequest(string method_name, Dictionary<string, string> parameters)
         {
             WebClient webClient = new WebClient();
@@ -57,7 +34,7 @@ namespace VkApiDll
                 webClient.QueryString.Add(param.Key.ToString(), param.Value.ToString());
             }
             webClient.QueryString.Add("v", Version);
-            webClient.QueryString.Add("access_token", VkAccessToken);
+            //webClient.QueryString.Add("access_token", VkAccessToken);
             return webClient.DownloadString("https://api.vk.com/method/" + method_name);
         }
 
@@ -72,7 +49,7 @@ namespace VkApiDll
 
         public VkApiResponse<UserDTO> GetGroupsMembers(String groupId)
         {
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            var parameters = new Dictionary<string, string>();
             parameters.Add("group_id", groupId);
             parameters.Add("fields", "lists, photo_50");
             String json = SendRequest("groups.getMembers", parameters);
@@ -81,7 +58,7 @@ namespace VkApiDll
 
         public int[] GetGroupsMembersIds(String groupId)
         {
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            var parameters = new Dictionary<string, string>();
             parameters.Add("group_id", groupId);
             String json = SendRequest("groups.getMembers", parameters);
             return ParseResponse<VkApiResponse<int>>(json).Response.Items;
@@ -89,7 +66,7 @@ namespace VkApiDll
 
         public VkApiResponse<UserDTO> GetFriends(String userId)
         {
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            var parameters = new Dictionary<string, string>();
             parameters.Add("user_id", userId);
             parameters.Add("fields", "lists, photo_50");
             String json = SendRequest("friends.get", parameters);
@@ -98,7 +75,7 @@ namespace VkApiDll
 
         public UserDTO GetUserByUsername(String username)
         {
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            var parameters = new Dictionary<string, string>();
             parameters.Add("user_ids", username);
             parameters.Add("fields", "photo_50");
             String json = SendRequest("users.get", parameters);
@@ -107,7 +84,7 @@ namespace VkApiDll
 
         public VkApiResponse<PostDTO> Get100Posts(String ownerId, int offset, int count)
         {
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            var parameters = new Dictionary<string, string>();
             parameters.Add("owner_id", ownerId);
             parameters.Add("offset", offset.ToString());
             parameters.Add("count", count.ToString());

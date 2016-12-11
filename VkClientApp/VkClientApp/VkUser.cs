@@ -38,10 +38,7 @@ namespace VkClientApp
                 FriendsList = new List<VkUser>();
 
                 foreach (UserDTO friend in friendsResp.Response.Items)
-                {
-                    // TODO insert into DB (INSERT IGNORE) 
                     AddFriend(friend);
-                }
             }
         }
     }
