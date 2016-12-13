@@ -22,17 +22,17 @@ namespace VkDatabaseApp
             Stopwatch timeGetMembersFriendsFromVk = new Stopwatch();    
             timeGetMembersFriendsFromVk.Start();
 
-            var vkClient = new VkClient();
-            Console.WriteLine("-------------------------------------\nПолучение графа из вк...");
-            List<VkUser> listGroupMembers = vkClient.GetGroupMembersGraph(groupName);
-
             //var vkClient = new VkClient();
-            //List<VkUser> listGroupMembers = new List<VkUser>()
-            //{
-            //    vkClient.GetUserGraphByUsername("mikhailtarrasov"),
-            //    vkClient.GetUserGraphByUsername("anna_li_12"),
-            //    vkClient.GetUserGraphByUsername("elenka_kolenka")
-            //};
+            //Console.WriteLine("-------------------------------------\nПолучение графа из вк...");
+            //List<VkUser> listGroupMembers = vkClient.GetGroupMembersGraph(groupName);
+
+            var vkClient = new VkClient();
+            List<VkUser> listGroupMembers = new List<VkUser>()
+            {
+                vkClient.GetUserGraphByUsername("mikhailtarrasov"),
+                vkClient.GetUserGraphByUsername("anna_li_12"),
+                vkClient.GetUserGraphByUsername("elenka_kolenka")
+            };
 
             timeGetMembersFriendsFromVk.Stop();
             Console.WriteLine("Время получения графа из вк: {0}\n-------------------------------------", Program.FormatTime(timeGetMembersFriendsFromVk));
@@ -61,79 +61,50 @@ namespace VkDatabaseApp
 
                     var userFriends = user.FriendsList;
 
+                    User dbUser;
+
                     bool userInDatabase = dbUserIdsHashSet.Contains(user.Id);
-                    if (userInDatabase)
-                    {
-                        var dbUser = db.Users.Find(user.Id);
-                        if (userFriends != null && userFriends.Count > 0)
-                        {
-                            foreach (var friend in userFriends)
-                            {
-                                User dbFriend;
-                                if (dbUserIdsHashSet.Contains(friend.Id))
-                                    dbFriend = db.Users.Find(friend.Id);
-                                else
-                                {
-                                    dbFriend = new User(friend);
-                                    dbUserIdsHashSet.Add(friend.Id);
-                                }
-                                if (!detectChanges && (dbUser == null || dbFriend == null))
-                                {
-                                    ++countDetectionChanges;
-                                    db.ChangeTracker.DetectChanges();
-                                    detectChanges = true;
-                                    if (dbUser == null) dbUser = db.Users.Find(user.Id);
-                                    if (dbFriend == null) dbFriend = db.Users.Find(friend.Id);
-                                }
-                                dbUser.Friends.Add(dbFriend);
-                            }
-                        }
-                    }
+                    if (userInDatabase) 
+                        dbUser = db.Users.Find(user.Id);
                     else
                     {
-                        var newDbUser = new User(user);
-
-                        db.Set<User>().Add(newDbUser);
-
+                        dbUser = new User(user);
+                        db.Set<User>().Add(dbUser);
                         dbUserIdsHashSet.Add(user.Id);
-                        if (userFriends != null && userFriends.Count > 0)
-                        {
-                            foreach (var friend in userFriends)
-                            {
-                                User dbFriend;
-                                if (dbUserIdsHashSet.Contains(friend.Id))
-                                {
-                                    dbFriend = db.Users.Find(friend.Id);
+                    }
 
-                                    if (!detectChanges && dbFriend == null)
-                                    {
-                                        ++countDetectionChanges;
-                                        db.ChangeTracker.DetectChanges();
-                                        dbFriend = db.Users.Find(friend.Id);
-                                        detectChanges = true;
-                                    }
-                                }
-                                else
-                                {
-                                    dbFriend = new User(friend);
-                                    dbUserIdsHashSet.Add(friend.Id);
-                                }
-                                newDbUser.Friends.Add(dbFriend);
+                    if (userFriends != null && userFriends.Count > 0)
+                    {
+                        foreach (var friend in userFriends)
+                        {
+                            User dbFriend;
+                            if (dbUserIdsHashSet.Contains(friend.Id))
+                                dbFriend = db.Users.Find(friend.Id);
+                            else
+                            {
+                                dbFriend = new User(friend);
+                                dbUserIdsHashSet.Add(friend.Id);
                             }
+                            if (!detectChanges && (dbUser == null || dbFriend == null))
+                            {
+                                ++countDetectionChanges;
+                                db.ChangeTracker.DetectChanges();
+                                detectChanges = true;
+                                if (dbUser == null) dbUser = db.Users.Find(user.Id);
+                                if (dbFriend == null) dbFriend = db.Users.Find(friend.Id);
+                            }
+                            dbUser.Friends.Add(dbFriend);
                         }
                     }
 
-
-                    //db.ChangeTracker.DetectChanges();
-                    //db.SaveChanges();
                     ++j;
                     if (listGroupMembers.Count > 100)
                         if ((j%(listGroupMembers.Count/100)) == 0) Console.Write("█");
-                    if (j%(5*8) == 0)
-                    {
-                        db = RecreateContext(db, 0, 0, true);
-                        ++countDetectionChanges;
-                    }
+                    //if (j%(5*8) == 0)
+                    //{
+                    //    db = RecreateContext(db, 0, 0, true);
+                    //    ++countDetectionChanges;
+                    //}
 
                     //if (dbUserIdsHashSet.Count > 50000) break;
                 }
@@ -161,12 +132,11 @@ namespace VkDatabaseApp
             Console.WriteLine("------------------------------------------------------------------\n" +
                                 "Кол-во юзеров - {1}\tОбщее время записи графа в БД: {0}", Program.FormatTime(timeFillInDatabase), dbUserIdsHashSet.Count);
             /*---------------------------------------------------------------------*/
-            //}
 
             //return dbUserIdsHashSet;
         }
 
-        public DatabaseContext RecreateContext(DatabaseContext db, int countInserted, int commitCount, bool recreateContext)    
+        public DatabaseContext RecreateContext(DatabaseContext db)    
         {
             try
             {
