@@ -9,11 +9,28 @@ namespace VkDatabaseApp.Domain.Entity
 {
     public class User
     {
-        public int Id { get; set; }
+        public int VkId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Photo { get; set; }
-        public virtual List<User> Friends { get; set; }
-        public virtual List<Group> Groups { get; set;  }
+        public virtual ICollection<User> Friends { get; set; }
+        public virtual ICollection<Group> Groups { get; set; }
+
+        public User(VkUser vkUser)
+        {
+            this.VkId = vkUser.Id;
+            this.FirstName = vkUser.FirstName;
+            this.LastName = vkUser.LastName;
+            this.Photo = vkUser.Photo50;
+
+            this.Groups = new HashSet<Group>();
+            this.Friends = new HashSet<User>();
+        }
+
+        public User()
+        {
+            this.Friends = new HashSet<User>();
+            this.Groups = new HashSet<Group>();
+        }
     }
 }
