@@ -17,22 +17,22 @@ namespace VkDatabaseApp
     {
         public void FillInDatabase(string groupName)
         {
-            CleanUsersTable(); 
-            
+            CleanUsersTable();
+
             Stopwatch timeGetMembersFriendsFromVk = new Stopwatch();    
             timeGetMembersFriendsFromVk.Start();
 
-            //var vkClient = new VkClient();
-            //Console.WriteLine("-------------------------------------\nПолучение графа из вк...");
-            //List<VkUser> listGroupMembers = vkClient.GetGroupMembersGraph(groupName);
-
             var vkClient = new VkClient();
-            List<VkUser> listGroupMembers = new List<VkUser>()
-            {
-                vkClient.GetUserGraphByUsername("mikhailtarrasov"),
-                vkClient.GetUserGraphByUsername("anna_li_12"),
-                vkClient.GetUserGraphByUsername("elenka_kolenka")
-            };
+            Console.WriteLine("-------------------------------------\nПолучение графа из вк...");
+            List<VkUser> listGroupMembers = vkClient.GetGroupMembersGraph(groupName);
+
+            //var vkClient = new VkClient();
+            //List<VkUser> listGroupMembers = new List<VkUser>()
+            //{
+            //    vkClient.GetUserGraphByUsername("mikhailtarrasov"),
+            //    vkClient.GetUserGraphByUsername("anna_li_12"),
+            //    vkClient.GetUserGraphByUsername("elenka_kolenka")
+            //};
 
             timeGetMembersFriendsFromVk.Stop();
             Console.WriteLine("Время получения графа из вк: {0}\n-------------------------------------", Program.FormatTime(timeGetMembersFriendsFromVk));
@@ -45,13 +45,16 @@ namespace VkDatabaseApp
             var dbUserIdsHashSet = new HashSet<int>();
             int countDetectionChanges = 0;
             DatabaseContext db = null;
+            int j = 0;
             try
             {
                 db = new DatabaseContext();
                 db.Configuration.AutoDetectChangesEnabled = false;
                 db.Configuration.ValidateOnSaveEnabled = false;
+                var dbGroup = db.Groups.FirstOrDefault(x => x.ScreenName == groupName);
+                if (dbGroup == null) dbGroup = db.Groups.Add(new Group(groupName));
+                else CleanUsersTable();
 
-                int j = 0;
                 foreach (var user in listGroupMembers)
                 {
                     bool detectChanges = false;
@@ -64,7 +67,7 @@ namespace VkDatabaseApp
                     User dbUser;
 
                     bool userInDatabase = dbUserIdsHashSet.Contains(user.Id);
-                    if (userInDatabase) 
+                    if (userInDatabase)
                         dbUser = db.Users.Find(user.Id);
                     else
                     {
@@ -72,6 +75,7 @@ namespace VkDatabaseApp
                         db.Set<User>().Add(dbUser);
                         dbUserIdsHashSet.Add(user.Id);
                     }
+                    //dbGroup.MembersList.Add(dbUser);
 
                     if (userFriends != null && userFriends.Count > 0)
                     {
@@ -96,17 +100,19 @@ namespace VkDatabaseApp
                             dbUser.Friends.Add(dbFriend);
                         }
                     }
+                    dbGroup.MembersList.Add(dbUser);
 
                     ++j;
                     if (listGroupMembers.Count > 100)
                         if ((j%(listGroupMembers.Count/100)) == 0) Console.Write("█");
-                    //if (j%(5*8) == 0)
-                    //{
-                    //    db = RecreateContext(db, 0, 0, true);
-                    //    ++countDetectionChanges;
-                    //}
-
-                    //if (dbUserIdsHashSet.Count > 50000) break;
+                    
+                    if (user.FriendsList != null && user.FriendsList.Count > 100)
+                    {
+                        ++countDetectionChanges;
+                        db.ChangeTracker.DetectChanges();
+                        db.SaveChanges();
+                    }
+                    if (dbUserIdsHashSet.Count > 50000) break;
                 }
             }
             catch (Exception e)
@@ -117,7 +123,7 @@ namespace VkDatabaseApp
             {
                 ++countDetectionChanges;
                 db.ChangeTracker.DetectChanges();
-                Console.WriteLine("{0} раз обнаруживали изменения для {1} проходов", countDetectionChanges, listGroupMembers.Count);
+                Console.WriteLine("\n{0} раз обнаруживали изменения для {1} проходов", countDetectionChanges, j);
                 Stopwatch DB = new Stopwatch(); /*  Старт секндомера */
                 DB.Start(); /*-------------------*/
                 Console.WriteLine("Запись контекста непосредственно в саму БД...");
@@ -176,6 +182,15 @@ namespace VkDatabaseApp
                 try
                 {
                     dbContext.Users.RemoveRange(dbContext.Users);
+                    dbContext.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
+                try
+                {
+                    dbContext.Groups.RemoveRange(dbContext.Groups);
                     dbContext.SaveChanges();
                 }
                 catch (Exception e)

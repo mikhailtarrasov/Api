@@ -10,6 +10,16 @@ namespace VkDatabaseApp.Domain.Entity
     {
         public int Id { get; set; }
         public string ScreenName { get; set; }
-        public virtual List<User> MembersList { get; set; } 
+        public virtual ICollection<User> MembersList { get; set; }
+
+        public Group(String groupName)
+        {
+            this.ScreenName = groupName;
+            this.MembersList = new HashSet<User>();
+        }
+        public Group()
+        {
+            this.MembersList = new HashSet<User>();
+        }
     }
 }
