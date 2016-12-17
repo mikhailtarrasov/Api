@@ -8,16 +8,25 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using VkClientApp;
-using VkDatabaseApp.Domain;
-using VkDatabaseApp.Domain.Entity;
+using VkDatabaseDll.Domain;
+using VkDatabaseDll.Domain.Entity;
 
-namespace VkDatabaseApp
+namespace VkDatabaseDll
 {
     public class EFDatabaseClient
     {
+        public Group GetGroupByScreenName(string screenName)
+        {
+            var db = new DatabaseContext();
+            return db.Groups.FirstOrDefault(x => x.ScreenName == screenName);
+        }
+
         public void FillInDatabase(string groupName)
         {
-            CleanUsersTable();
+            //var dbq = new DatabaseContext();
+            //var dbGroupq = dbq.Groups.FirstOrDefault(x => x.ScreenName == groupName);
+            //Console.WriteLine(dbGroupq.Id);
+                CleanUsersTable();
 
             Stopwatch timeGetMembersFriendsFromVk = new Stopwatch();    
             timeGetMembersFriendsFromVk.Start();
@@ -35,7 +44,7 @@ namespace VkDatabaseApp
             //};
 
             timeGetMembersFriendsFromVk.Stop();
-            Console.WriteLine("Время получения графа из вк: {0}\n-------------------------------------", Program.FormatTime(timeGetMembersFriendsFromVk));
+            Console.WriteLine("Время получения графа из вк: {0}\n-------------------------------------", FormatTime(timeGetMembersFriendsFromVk));
             
             Console.WriteLine("Строим граф в локальном контексте БД...");
 
@@ -129,14 +138,14 @@ namespace VkDatabaseApp
                 Console.WriteLine("Запись контекста непосредственно в саму БД...");
                 db.SaveChanges(); 
                 DB.Stop();
-                Console.WriteLine("Время записи контекста в БД: " + Program.FormatTime(DB));
+                Console.WriteLine("Время записи контекста в БД: " + FormatTime(DB));
 
                 if (db != null) db.Dispose();
             }
             /*---------------------------------------------------------------------*/
             timeFillInDatabase.Stop();
             Console.WriteLine("------------------------------------------------------------------\n" +
-                                "Кол-во юзеров - {1}\tОбщее время записи графа в БД: {0}", Program.FormatTime(timeFillInDatabase), dbUserIdsHashSet.Count);
+                                "Кол-во юзеров - {1}\tОбщее время записи графа в БД: {0}", FormatTime(timeFillInDatabase), dbUserIdsHashSet.Count);
             /*---------------------------------------------------------------------*/
 
             //return dbUserIdsHashSet;
@@ -200,7 +209,7 @@ namespace VkDatabaseApp
                 Console.WriteLine("Количество пользователей в базе после удаления:  {0}\n", dbContext.Users.Count());
             }
             timeFillMemberWithFriendsInDatabase.Stop();
-            Console.WriteLine("Время на удаление: " + Program.FormatTime(timeFillMemberWithFriendsInDatabase));
+            Console.WriteLine("Время на удаление: " + FormatTime(timeFillMemberWithFriendsInDatabase));
         }
 
         //public void CleanUsersTable2()
@@ -220,6 +229,15 @@ namespace VkDatabaseApp
         //        db.SaveChanges();
         //    }
         //}
+        public static String FormatTime(Stopwatch time)
+        {
+            // Get the elapsed time as a TimeSpan value.
+            TimeSpan ts = time.Elapsed;
 
+            // Format and display the TimeSpan value.
+            return String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                ts.Hours, ts.Minutes, ts.Seconds,
+                ts.Milliseconds / 10);
+        }
     }
 }

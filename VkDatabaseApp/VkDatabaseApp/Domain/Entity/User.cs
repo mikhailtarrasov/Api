@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VkClientApp;
 
-namespace VkDatabaseApp.Domain.Entity
+namespace VkDatabaseDll.Domain.Entity
 {
     public class User
     {

@@ -5,9 +5,9 @@ using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using VkDatabaseApp.Domain.Entity;
+using VkDatabaseDll.Domain.Entity;
 
-namespace VkDatabaseApp.Domain
+namespace VkDatabaseDll.Domain
 {
     public class DatabaseContext : DbContext
     {

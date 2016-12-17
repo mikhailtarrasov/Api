@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkDatabaseApp", "VkDatabaseApp\VkDatabaseApp.csproj", "{A2603CF4-811F-4004-ADD6-BD5AF69A6B26}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkDatabaseDll", "VkDatabaseApp\VkDatabaseDll.csproj", "{A2603CF4-811F-4004-ADD6-BD5AF69A6B26}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkClientApp", "..\VkClientApp\VkClientApp\VkClientApp.csproj", "{8C90A952-3736-43BA-8548-D23253F1116C}"
 EndProject
