@@ -26,7 +26,7 @@ namespace VkDatabaseDll
             //var dbq = new DatabaseContext();
             //var dbGroupq = dbq.Groups.FirstOrDefault(x => x.ScreenName == groupName);
             //Console.WriteLine(dbGroupq.Id);
-                CleanUsersTable();
+            CleanUsersTable();
 
             Stopwatch timeGetMembersFriendsFromVk = new Stopwatch();    
             timeGetMembersFriendsFromVk.Start();
@@ -181,13 +181,26 @@ namespace VkDatabaseDll
                 try
                 {
                     dbContext.Database.ExecuteSqlCommand("TRUNCATE TABLE UserUsers");
+                    dbContext.SaveChanges();
                     Console.Write("\t☺☻\n");
                 }
                 catch (Exception e)
                 {
-                    //Console.WriteLine(e.Message);
+                    Console.WriteLine(e.Message);
                     Console.Write("\t☻☺\n");
                 }
+
+                try
+                {
+                    dbContext.Database.ExecuteSqlCommand("TRUNCATE TABLE UserGroups");
+                    dbContext.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.Write("\t☻☺\n");
+                }
+
                 try
                 {
                     dbContext.Users.RemoveRange(dbContext.Users);

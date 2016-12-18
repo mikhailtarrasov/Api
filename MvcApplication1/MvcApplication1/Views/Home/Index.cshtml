@@ -10,8 +10,27 @@
     <title>Index</title>
 </head>
 <body>
-  <div style="text-align: center;">
-        @ViewBag.Greeting, World
-  </div>
+<div style="display: block; padding: 0px; margin: 10px auto; width: 638px; height: auto; border: 1px solid gainsboro;">
+    <div style="display: block; background-color: #f2f4f7; border-color: #e7eaf0; border-bottom: 2px solid #6387ac; padding: 14px 15px;">
+        Участники @ViewBag.GroupMembers.Count
+    </div>
+    <div style="display: block; padding: 25px 14px 5px;">
+        @foreach(var member in @ViewBag.GroupMembers)
+        {
+          <div style="padding: 12px 0; clear: both; position: relative; display: block;">
+            <div style="float: left; margin: 0 15px 0 0; position: relative; width: 50px; height: 50px; overflow: hidden; display: block;">
+                <a style="display: block; overflow: hidden; cursor: pointer;" href="/@member.VkId">
+                    <img style="vertical-align: top; width: 50px; height: 50px; border-radius: 50%; cursor: pointer;" src="@member.Photo"/>
+                </a> 
+            </div>
+            <div style="text-align: left; vertical-align: center; height: 50px;">
+              <a style="cursor: pointer; color: #2a5885; text-decoration: none;" href="/@member.VkId">@member.FirstName @member.LastName</a>
+            </div>
+          </div> 
+        }
+    </div>
+    
+</div>
+
 </body>
 </html>

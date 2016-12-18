@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using VkDatabaseDll;
+using VkDatabaseDll.Domain;
+using VkDatabaseDll.Domain.Entity;
+using VkDatabaseDll;
 
 namespace MvcApplication1.Controllers
 {
@@ -18,8 +23,17 @@ namespace MvcApplication1.Controllers
 
         public ViewResult Index()   /*Создаем ВьюРезалт, вызывая метод Вью*/
         {
-            int hour = DateTime.Now.Hour;
-            ViewBag.Greeting = hour < 12 ? "Good Morning" : "Good Afternoon";
+            //EFDatabaseClient dbClient=  new EFDatabaseClient();
+            //Group dbGroup = dbClient.GetGroupByScreenName("csu_iit");
+            //var db = new DatabaseContext();
+            //User dbGroup = db.Groups.Where(x => x.ScreenName == "csu_iit").FirstOrDefault();
+            //Group dbGroup = db.Groups.Find(19);
+
+            var efDbClient = new EFDatabaseClient();
+            var dbGroup = efDbClient.GetGroupByScreenName("chelyabinskfw");
+            ViewBag.GroupMembers = dbGroup.MembersList;
+            //ViewBag.MembersCount = dbGroup.MembersList.Count;
+
 
             return View();
         }
