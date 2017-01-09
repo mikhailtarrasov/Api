@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VkApiDll;
+﻿using System.Collections.Generic;
+using VkApiDll.Serialization;
 
 namespace VkClientApp
 {
@@ -16,7 +12,7 @@ namespace VkClientApp
         public int CommentsCount { get; private set; }
         public int LikesCount { get; private set; }
         public int RepostsCount { get; private set; }
-        public VkPostAttachment[] Attachments { get; private set; }
+        public List<VkPostAttachment> Attachments { get; private set; }
 
         public VkPost(PostDTO post)
         {
@@ -28,12 +24,12 @@ namespace VkClientApp
             LikesCount = post.Likes.Count;
             RepostsCount = post.Reposts.Count;
 
-            if (post.Attachments != null)
+            if (post.AttachmentsDto != null)
             {
-                Attachments = new VkPostAttachment[post.Attachments.Length];
-                for (int i = Attachments.Length; i > 0; i--)
+                Attachments = new List<VkPostAttachment>();
+                foreach (var attachment in post.AttachmentsDto)
                 {
-                    Attachments[i] = new VkPostAttachment(post.Attachments[i]);
+                    Attachments.Add(new VkPostAttachment(attachment));
                 }
             }
         }

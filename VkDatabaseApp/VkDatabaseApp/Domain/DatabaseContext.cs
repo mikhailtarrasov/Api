@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VkDatabaseDll.Domain.Entity;
 
 namespace VkDatabaseDll.Domain
@@ -12,9 +7,11 @@ namespace VkDatabaseDll.Domain
     public class DatabaseContext : DbContext
     {
         public DatabaseContext() : base("DefaultConnection") { }
+
         public DbSet<User> Users { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<Group> Groups { get; set; }
+        public DbSet<PostAttachment> PostAttachments { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -25,6 +22,16 @@ namespace VkDatabaseDll.Domain
             modelBuilder.Entity<User>()
                 .HasMany(x => x.Friends)
                 .WithMany();
+            
+            modelBuilder.Entity<Post>()
+                .HasKey(u => u.Id)
+                .Property(u => u.Id)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+
+            modelBuilder.Entity<Photo>()
+                .HasKey(u => u.Id)
+                .Property(u => u.Id)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
         }
     }
 }

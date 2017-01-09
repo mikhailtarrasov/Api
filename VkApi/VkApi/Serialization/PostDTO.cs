@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace VkApiDll
+namespace VkApiDll.Serialization
 {
     [DataContract]
     public class PostDTO
@@ -26,7 +26,7 @@ namespace VkApiDll
         [DataMember(Name = "reposts")]
         public PostReaction Reposts { get; internal set; }
 
-        [DataMember(Name = "PostAttachments")]
-        public PostAttachment[] Attachments { get; internal set; }
+        [DataMember(Name = "attachments")]
+        public PostAttachmentDTO[] AttachmentsDto { get; internal set; }
     }
 }
