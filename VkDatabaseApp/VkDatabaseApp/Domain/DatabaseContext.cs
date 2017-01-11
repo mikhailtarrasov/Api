@@ -12,6 +12,7 @@ namespace VkDatabaseDll.Domain
         public DbSet<Post> Posts { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<PostAttachment> PostAttachments { get; set; }
+        public DbSet<Photo> Photos { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -22,16 +23,16 @@ namespace VkDatabaseDll.Domain
             modelBuilder.Entity<User>()
                 .HasMany(x => x.Friends)
                 .WithMany();
-            
+
             modelBuilder.Entity<Post>()
                 .HasKey(u => u.Id)
                 .Property(u => u.Id)
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
             modelBuilder.Entity<Photo>()
                 .HasKey(u => u.Id)
                 .Property(u => u.Id)
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
         }
     }
 }

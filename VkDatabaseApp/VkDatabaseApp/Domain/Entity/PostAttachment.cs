@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using VkClientApp;
 
 namespace VkDatabaseDll.Domain.Entity
@@ -33,36 +35,5 @@ namespace VkDatabaseDll.Domain.Entity
         }
 
         public PostAttachment() { }
-    }
-
-    public class Photo
-    {
-        public int Id { get; set; }
-        public string PhotoUrl { get; set; }
-        public virtual List<PostAttachment> ListAttachmentsWithThisPhoto { get; set; } 
-
-        public Photo(VkPhoto vkPhoto)
-        {
-            Id = vkPhoto.Id;
-            PhotoUrl = vkPhoto.PhotoUrl;
-        }
-
-        public Photo() { }
-    }
-
-    public class Link
-    {
-        public int Id { get; set; }
-
-        public string Url { get; set; }
-        public string Title { get; set; }
-
-        public Link(VkLink vkLink)
-        {
-            Title = vkLink.Title;
-            Url = vkLink.Url;
-        }
-
-        public Link() { }
     }
 }

@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Serialization.Json;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using VkClientApp;
 using VkDatabaseDll.Domain;
@@ -17,37 +13,16 @@ namespace VkDatabaseDll
     {
         public Group GetGroupByScreenName(string screenName)
         {
-            var db = new DatabaseContext();
-            return db.Groups.FirstOrDefault(x => x.ScreenName == screenName);
+            return new DatabaseContext().Groups.FirstOrDefault(x => x.ScreenName == screenName);
         }
 
-        public void FillInDatabase(string groupName)
+        public User GetUserById(int id)
         {
-            //var dbq = new DatabaseContext();
-            //var dbGroupq = dbq.Groups.FirstOrDefault(x => x.ScreenName == groupName);
-            //Console.WriteLine(dbGroupq.Id);
-            CleanUsersTable();
+            return new DatabaseContext().Users.Find(id);
+        }
 
-            Stopwatch timeGetMembersFriendsFromVk = new Stopwatch();    
-            timeGetMembersFriendsFromVk.Start();
-
-            var vkClient = new VkClient();
-            Console.WriteLine("-------------------------------------\nПолучение графа из вк...");
-            List<VkUser> listGroupMembers = vkClient.GetGroupMembersGraph(groupName);
-
-            //var vkClient = new VkClient();
-            //List<VkUser> listGroupMembers = new List<VkUser>()
-            //{
-            //    vkClient.GetUserGraphByUsername("mikhailtarrasov"),
-            //    vkClient.GetUserGraphByUsername("anna_li_12"),
-            //    vkClient.GetUserGraphByUsername("elenka_kolenka")
-            //};
-
-            timeGetMembersFriendsFromVk.Stop();
-            Console.WriteLine("Время получения графа из вк: {0}\n-------------------------------------", FormatTime(timeGetMembersFriendsFromVk));
-            
-            Console.WriteLine("Строим граф в локальном контексте БД...");
-
+        public void FillGroupMembersInDatabase(List<VkUser> listGroupMembers, string groupName)
+        {
             Stopwatch timeFillInDatabase = new Stopwatch();           
             timeFillInDatabase.Start();       
 
@@ -66,8 +41,6 @@ namespace VkDatabaseDll
 
                 foreach (var user in listGroupMembers)
                 {
-                    bool detectChanges = false;
-
                     Stopwatch timeFillMemberWithFriendsInDatabase = new Stopwatch();
                     timeFillMemberWithFriendsInDatabase.Start();
 
@@ -84,8 +57,9 @@ namespace VkDatabaseDll
                         db.Set<User>().Add(dbUser);
                         dbUserIdsHashSet.Add(user.Id);
                     }
-                    //dbGroup.MembersList.Add(dbUser);
+                    dbGroup.MembersList.Add(dbUser);
 
+                    List<User> friendsList = new List<User>();
                     if (userFriends != null && userFriends.Count > 0)
                     {
                         foreach (var friend in userFriends)
@@ -98,27 +72,21 @@ namespace VkDatabaseDll
                                 dbFriend = new User(friend);
                                 dbUserIdsHashSet.Add(friend.Id);
                             }
-                            if (!detectChanges && (dbUser == null || dbFriend == null))
-                            {
-                                ++countDetectionChanges;
-                                db.ChangeTracker.DetectChanges();
-                                detectChanges = true;
-                                if (dbUser == null) dbUser = db.Users.Find(user.Id);
-                                if (dbFriend == null) dbFriend = db.Users.Find(friend.Id);
-                            }
-                            dbUser.Friends.Add(dbFriend);
+                            friendsList.Add(dbFriend);
                         }
                     }
+                    dbUser.Friends.AddRange(friendsList);
                     dbGroup.MembersList.Add(dbUser);
 
                     ++j;
                     if (listGroupMembers.Count > 100)
                         if ((j%(listGroupMembers.Count/100)) == 0) Console.Write("█");
-                    
+
+                    ++countDetectionChanges;
+                    db.ChangeTracker.DetectChanges();
+
                     if (user.FriendsList != null && user.FriendsList.Count > 100)
                     {
-                        ++countDetectionChanges;
-                        db.ChangeTracker.DetectChanges();
                         db.SaveChanges();
                     }
                     if (dbUserIdsHashSet.Count > 50000) break;
@@ -170,11 +138,74 @@ namespace VkDatabaseDll
             return db;
         }
 
+        public void FillNewsForDbGroupMembers(string groupName, Dictionary<int, VkWall> userWallsDictionary)
+        {
+            int postsWhenFewTimesTryToAddInDb = 0;
+            int photosWhenFewTimesTryToAddInDb = 0;
+            using (var db = new DatabaseContext())
+            {
+                //db.Configuration.AutoDetectChangesEnabled = false;
+                //db.Configuration.ValidateOnSaveEnabled = false;
+
+                var postsIdsHashSet = new HashSet<int>();
+                var photosIdsHashSet = new HashSet<int>();
+
+                var group = db.Groups.FirstOrDefault(x => x.ScreenName == groupName);
+                if (group != null && group.MembersList.Count > 0)
+                {
+                    foreach (var groupMember in group.MembersList)
+                    {
+                        if (groupMember.Friends.Count > 0)
+                        {
+                            foreach (var friend in groupMember.Friends)
+                            {
+                                if (!userWallsDictionary.ContainsKey(friend.VkId))
+                                    continue;
+
+                                var newWall = new VkWall();
+                                userWallsDictionary.TryGetValue(friend.VkId, out newWall);
+                                //var vkPostList = userWallsDictionary.FirstOrDefault(x => x.Key.Id == friend.VkId).Value.PostList;
+                                foreach (var post in newWall.PostList)
+                                {
+                                    if (postsIdsHashSet.Contains(post.Id))
+                                    {
+                                        ++postsWhenFewTimesTryToAddInDb;
+                                        continue;
+                                    }
+                                    postsIdsHashSet.Add(post.Id);
+                                    if (post.Attachments != null)
+                                        foreach (var attachment in post.Attachments)
+                                        {
+                                            if (attachment.Type == "photo")
+                                            {
+                                                if (photosIdsHashSet.Contains(attachment.Photo.Id))
+                                                {
+                                                    ++photosWhenFewTimesTryToAddInDb;
+                                                    continue;
+                                                }
+                                                photosIdsHashSet.Add(attachment.Photo.Id);
+                                            }
+
+                                        }
+                                    var user = db.Users.Find(friend.VkId);
+                                    user.Posts.Add(new Post(post, newWall.AvgPostReaction));
+                                    db.SaveChanges();
+                                    //db.Posts.Add(new Post(post, friend, newWall.AvgPostReaction));
+                                }
+                            }
+                        }
+                    }
+                }
+                Console.WriteLine(postsWhenFewTimesTryToAddInDb + " - раз попадался уже существующий пост.");
+                Console.WriteLine(photosWhenFewTimesTryToAddInDb + " - раз попадалась уже существующая фотография.");
+            }
+        }
+
         public void CleanUsersTable()
         {
+            CleanAllPosts();
             Stopwatch timeFillMemberWithFriendsInDatabase = new Stopwatch(); 
             timeFillMemberWithFriendsInDatabase.Start(); 
-
             using (var dbContext = new DatabaseContext())
             {
                 Console.Write("Количество пользователей в базе перед удалением: {0}", dbContext.Users.Count());
@@ -225,32 +256,27 @@ namespace VkDatabaseDll
             Console.WriteLine("Время на удаление: " + FormatTime(timeFillMemberWithFriendsInDatabase));
         }
 
-        //public void CleanUsersTable2()
-        //{
-        //    using (var db = new DatabaseContext())
-        //    {
-        //        int i = 0;
-        //        while (true)
-        //        {
-        //            var user = db.Users.Include(x => x.Friends).FirstOrDefault();
-        //            if (user == null) break;
-        //            db.Users.Remove(user);
-        //            //db.Users.RemoveRange(dbContext.Users);
-        //            ++i;
-        //            if (i % 100 == 0) db.SaveChanges();
-        //        }
-        //        db.SaveChanges();
-        //    }
-        //}
+        public void CleanAllPosts()
+        {
+            using (var db = new DatabaseContext())
+            {
+                try
+                {
+                    db.PostAttachments.RemoveRange(db.PostAttachments);
+                    db.Posts.RemoveRange(db.Posts);
+                    db.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
+            }
+        }
+
         public static String FormatTime(Stopwatch time)
         {
-            // Get the elapsed time as a TimeSpan value.
-            TimeSpan ts = time.Elapsed;
-
-            // Format and display the TimeSpan value.
-            return String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                ts.Hours, ts.Minutes, ts.Seconds,
-                ts.Milliseconds / 10);
+            return time.Elapsed.ToString("g");
         }
     }
 }
+// 230 строк

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace VkDatabaseDll.Domain.Entity
 {
@@ -14,12 +11,12 @@ namespace VkDatabaseDll.Domain.Entity
 
         public Group(String groupName)
         {
-            this.ScreenName = groupName;
-            this.MembersList = new HashSet<User>();
+            ScreenName = groupName;
+            MembersList = new HashSet<User>();
         }
         public Group()
         {
-            this.MembersList = new HashSet<User>();
+            MembersList = new HashSet<User>();
         }
     }
 }

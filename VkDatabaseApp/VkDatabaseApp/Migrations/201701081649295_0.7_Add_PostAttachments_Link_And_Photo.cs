@@ -40,7 +40,7 @@ namespace VkDatabaseDll.Migrations
                 "dbo.Photos",
                 c => new
                     {
-                        Id = c.Int(nullable: false),
+                        Id = c.Int(nullable: false, identity: true),
                         PhotoUrl = c.String(),
                     })
                 .PrimaryKey(t => t.Id);
