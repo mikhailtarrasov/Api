@@ -1,29 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using VkApiDll;
+using VkApiDll.Serialization;
 
 namespace VkClientApp
 {
     public class VkWall
     {
         public List<VkPost> PostList { get; private set; }
+        public float AvgPostReaction { get; private set; }
 
         public VkWall()
         {
             PostList = null;
+            AvgPostReaction = 0;
         }
 
-        private bool GetUserWall(VkUser vkUser)
+        public bool GetTopPosts(VkUser vkUser, int count)
+        {
+            int offset = 0;
+            int postsReaction = 0;
+            int postsCount;
+
+            VkApiResponse<PostDTO> resp = new VkApi().GetOwnerPostsFromWall(vkUser.Id.ToString(), offset, count);
+
+            if (resp.Response == null || resp.Response.Count == 0) return false;
+            else
+            {
+                postsCount = resp.Response.Count > count ? count : resp.Response.Count;
+                PostList = new List<VkPost>(postsCount);
+
+                foreach (PostDTO post in resp.Response.Items)
+                {
+                    PostList.Add(new VkPost(post));
+                    postsReaction += post.Likes.Count + post.Comments.Count + post.Reposts.Count;
+                }
+
+                AvgPostReaction = (float)postsReaction/postsCount;
+                    
+                return true;
+            }
+        }
+
+        public bool GetUserWall(VkUser vkUser)
         {
             int offset = 0;
             int count = 100;
 
             VkApi ApiObj = new VkApi();
 
-            VkApiResponse<PostDTO> resp = ApiObj.Get100Posts(vkUser.Id.ToString(), offset, count);
+            VkApiResponse<PostDTO> resp = ApiObj.GetOwnerPostsFromWall(vkUser.Id.ToString(), offset, count);
 
             if (resp.Response == null || resp.Response.Count == 0) return false;
             else
@@ -33,23 +59,20 @@ namespace VkClientApp
                 for (int i = resp.Response.Count; i > 0; i -= 100)
                 {
                     //Thread.Sleep(330);
-                    if (resp.Response != null)
-                    {
-                        foreach (PostDTO post in resp.Response.Items)
-                            PostList.Add(new VkPost(post));
+                    foreach (PostDTO post in resp.Response.Items)
+                        PostList.Add(new VkPost(post));
 
-                        if (i > 100)
-                        {
-                            offset += 100;
-                            resp = ApiObj.Get100Posts(vkUser.Id.ToString(), offset, count);
-                        }
+                    if (i > 100)
+                    {
+                        offset += 100;
+                        resp = ApiObj.GetOwnerPostsFromWall(vkUser.Id.ToString(), offset, count);
                     }
                 }
                 return true;
             }
         }
 
-        private bool GetNews(VkUser user)
+        public bool GetNews(VkUser user)
         {
             if (user.FriendsList != null)
             {
@@ -59,7 +82,7 @@ namespace VkClientApp
                 {
                     VkWall friendWall = new VkWall();
 
-                    if (friendWall.GetUserWall(friend))     // Если стена есть
+                    if (friendWall.GetUserWall(user))     // Если стена есть
                         foreach (VkPost post in friendWall.PostList)
                             PostList.Add(post);
                 }
