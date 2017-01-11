@@ -21,6 +21,32 @@ namespace VkDatabaseDll
             return new DatabaseContext().Users.Find(id);
         }
 
+        public List<Post> GetSortedNewsById(int id)
+        {
+            return SortNews(GetNewsByUserId(id));
+        } 
+
+        private List<Post> SortNews(List<Post> postList)
+        {
+            postList.Sort(Comparer<Post>.Create((post1, post2) => (int)(post2.LikesCount/post2.AvgWallsPostReaction - post1.LikesCount/post1.AvgWallsPostReaction)));
+            return postList;
+        }
+
+        private List<Post> GetNewsByUserId(int id)
+        {
+            var newsList = new List<Post>();
+
+            using (var db = new DatabaseContext())
+            {
+                var user = db.Users.Find(id);
+                foreach (var friend in user.Friends)
+                    if (friend.Posts != null && friend.Posts.Count > 0)
+                        foreach (var post in friend.Posts)
+                            newsList.Add(post);
+            }
+            return newsList;
+        }
+
         public void FillGroupMembersInDatabase(List<VkUser> listGroupMembers, string groupName)
         {
             Stopwatch timeFillInDatabase = new Stopwatch();           
