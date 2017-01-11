@@ -1,0 +1,37 @@
+﻿@model dynamic
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>title</title>
+</head>
+<body>
+<div style="width: 550px; margin: 0 auto;">
+      @foreach (var post in @ViewBag.Posts)
+      {
+          <div style="margin-top: 15px; border: 1px solid gainsboro;">
+             <div style="padding: 15px 20px 0; position: relative; display: block;">
+                <a style="display: block; overflow: hidden; cursor: pointer;" href="/Home/">
+                    <img style="vertical-align: top; width: 50px; height: 50px; border-radius: 50%; cursor: pointer;" src="@post.User.Photo"/>
+                </a>
+                <div style="text-align: left; vertical-align: center; height: 50px; padding-top: 8px;">
+                    <a style="cursor: pointer; color: #2a5885; text-decoration: none;" href="/Home/">@post.User.FirstName @post.User.LastName</a>
+                </div>
+            </div>
+
+              <div style="padding: 8px 20px 19px; display: block;">
+                  <div style="display: block;">
+                      <div style="padding-top: 3px; overflow: hidden;">@post.Text</div>
+                  </div>
+              </div>
+              <div>@post.LikesCount likes  @post.RepostsCount reposts  @post.CommentsCount comments</div>
+          </div>
+      }
+</div>
+</body>
+</html>
