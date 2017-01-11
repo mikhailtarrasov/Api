@@ -5,6 +5,7 @@ using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using VkApiDll;
+using VkApiDll.Serialization;
 
 namespace VkClientApp
 {
@@ -64,6 +65,23 @@ namespace VkClientApp
             VkUser user = new VkUser(new VkApi().GetUserByUsername(username));
             user.SetFriends();
             return user;
+        }
+
+        public Dictionary<int, VkWall> GetWallsForFriendsInUserGraph(List<VkUser> listGroupMembers)
+        {
+            var userWallDictionary = new Dictionary<int, VkWall>();
+
+            foreach (var groupMember in listGroupMembers)
+            {
+                foreach (var friend in groupMember.FriendsList)
+                {
+                    var friendWall = new VkWall();
+
+                    if (!userWallDictionary.ContainsKey(friend.Id) && friendWall.GetTopPosts(friend, 10))
+                        userWallDictionary.Add(friend.Id, friendWall);
+                }
+            }
+            return userWallDictionary;
         }
     }
 }

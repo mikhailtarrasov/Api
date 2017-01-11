@@ -13,6 +13,7 @@ namespace VkDatabaseDll.Domain
         public DbSet<Group> Groups { get; set; }
         public DbSet<PostAttachment> PostAttachments { get; set; }
         public DbSet<Photo> Photos { get; set; }
+        public DbSet<Link> Links { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

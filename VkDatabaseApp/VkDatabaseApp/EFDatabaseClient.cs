@@ -27,7 +27,6 @@ namespace VkDatabaseDll
             timeFillInDatabase.Start();       
 
             var dbUserIdsHashSet = new HashSet<int>();
-            int countDetectionChanges = 0;
             DatabaseContext db = null;
             int j = 0;
             try
@@ -37,13 +36,9 @@ namespace VkDatabaseDll
                 db.Configuration.ValidateOnSaveEnabled = false;
                 var dbGroup = db.Groups.FirstOrDefault(x => x.ScreenName == groupName);
                 if (dbGroup == null) dbGroup = db.Groups.Add(new Group(groupName));
-                else CleanUsersTable();
 
                 foreach (var user in listGroupMembers)
                 {
-                    Stopwatch timeFillMemberWithFriendsInDatabase = new Stopwatch();
-                    timeFillMemberWithFriendsInDatabase.Start();
-
                     var userFriends = user.FriendsList;
 
                     User dbUser;
@@ -82,14 +77,11 @@ namespace VkDatabaseDll
                     if (listGroupMembers.Count > 100)
                         if ((j%(listGroupMembers.Count/100)) == 0) Console.Write("█");
 
-                    ++countDetectionChanges;
                     db.ChangeTracker.DetectChanges();
-
                     if (user.FriendsList != null && user.FriendsList.Count > 100)
                     {
                         db.SaveChanges();
                     }
-                    if (dbUserIdsHashSet.Count > 50000) break;
                 }
             }
             catch (Exception e)
@@ -98,16 +90,8 @@ namespace VkDatabaseDll
             }
             finally
             {
-                ++countDetectionChanges;
                 db.ChangeTracker.DetectChanges();
-                Console.WriteLine("\n{0} раз обнаруживали изменения для {1} проходов", countDetectionChanges, j);
-                Stopwatch DB = new Stopwatch(); /*  Старт секндомера */
-                DB.Start(); /*-------------------*/
-                Console.WriteLine("Запись контекста непосредственно в саму БД...");
                 db.SaveChanges(); 
-                DB.Stop();
-                Console.WriteLine("Время записи контекста в БД: " + FormatTime(DB));
-
                 if (db != null) db.Dispose();
             }
             /*---------------------------------------------------------------------*/
@@ -115,8 +99,6 @@ namespace VkDatabaseDll
             Console.WriteLine("------------------------------------------------------------------\n" +
                                 "Кол-во юзеров - {1}\tОбщее время записи графа в БД: {0}", FormatTime(timeFillInDatabase), dbUserIdsHashSet.Count);
             /*---------------------------------------------------------------------*/
-
-            //return dbUserIdsHashSet;
         }
 
         public DatabaseContext RecreateContext(DatabaseContext db)    
@@ -140,16 +122,8 @@ namespace VkDatabaseDll
 
         public void FillNewsForDbGroupMembers(string groupName, Dictionary<int, VkWall> userWallsDictionary)
         {
-            int postsWhenFewTimesTryToAddInDb = 0;
-            int photosWhenFewTimesTryToAddInDb = 0;
             using (var db = new DatabaseContext())
             {
-                //db.Configuration.AutoDetectChangesEnabled = false;
-                //db.Configuration.ValidateOnSaveEnabled = false;
-
-                var postsIdsHashSet = new HashSet<int>();
-                var photosIdsHashSet = new HashSet<int>();
-
                 var group = db.Groups.FirstOrDefault(x => x.ScreenName == groupName);
                 if (group != null && group.MembersList.Count > 0)
                 {
@@ -164,113 +138,51 @@ namespace VkDatabaseDll
 
                                 var newWall = new VkWall();
                                 userWallsDictionary.TryGetValue(friend.VkId, out newWall);
-                                //var vkPostList = userWallsDictionary.FirstOrDefault(x => x.Key.Id == friend.VkId).Value.PostList;
                                 foreach (var post in newWall.PostList)
                                 {
-                                    if (postsIdsHashSet.Contains(post.Id))
-                                    {
-                                        ++postsWhenFewTimesTryToAddInDb;
-                                        continue;
-                                    }
-                                    postsIdsHashSet.Add(post.Id);
-                                    if (post.Attachments != null)
-                                        foreach (var attachment in post.Attachments)
-                                        {
-                                            if (attachment.Type == "photo")
-                                            {
-                                                if (photosIdsHashSet.Contains(attachment.Photo.Id))
-                                                {
-                                                    ++photosWhenFewTimesTryToAddInDb;
-                                                    continue;
-                                                }
-                                                photosIdsHashSet.Add(attachment.Photo.Id);
-                                            }
-
-                                        }
                                     var user = db.Users.Find(friend.VkId);
                                     user.Posts.Add(new Post(post, newWall.AvgPostReaction));
                                     db.SaveChanges();
-                                    //db.Posts.Add(new Post(post, friend, newWall.AvgPostReaction));
                                 }
                             }
                         }
                     }
                 }
-                Console.WriteLine(postsWhenFewTimesTryToAddInDb + " - раз попадался уже существующий пост.");
-                Console.WriteLine(photosWhenFewTimesTryToAddInDb + " - раз попадалась уже существующая фотография.");
             }
         }
 
-        public void CleanUsersTable()
+        public void CleanDatabase()
         {
-            CleanAllPosts();
-            Stopwatch timeFillMemberWithFriendsInDatabase = new Stopwatch(); 
-            timeFillMemberWithFriendsInDatabase.Start(); 
-            using (var dbContext = new DatabaseContext())
-            {
-                Console.Write("Количество пользователей в базе перед удалением: {0}", dbContext.Users.Count());
-                try
-                {
-                    dbContext.Database.ExecuteSqlCommand("TRUNCATE TABLE UserUsers");
-                    dbContext.SaveChanges();
-                    Console.Write("\t☺☻\n");
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                    Console.Write("\t☻☺\n");
-                }
-
-                try
-                {
-                    dbContext.Database.ExecuteSqlCommand("TRUNCATE TABLE UserGroups");
-                    dbContext.SaveChanges();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                    Console.Write("\t☻☺\n");
-                }
-
-                try
-                {
-                    dbContext.Users.RemoveRange(dbContext.Users);
-                    dbContext.SaveChanges();
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show(e.Message);
-                }
-                try
-                {
-                    dbContext.Groups.RemoveRange(dbContext.Groups);
-                    dbContext.SaveChanges();
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show(e.Message);
-                }
-                Console.WriteLine("Количество пользователей в базе после удаления:  {0}\n", dbContext.Users.Count());
-            }
-            timeFillMemberWithFriendsInDatabase.Stop();
-            Console.WriteLine("Время на удаление: " + FormatTime(timeFillMemberWithFriendsInDatabase));
-        }
-
-        public void CleanAllPosts()
-        {
+            Stopwatch timeDelete = new Stopwatch(); 
+            timeDelete.Start(); 
             using (var db = new DatabaseContext())
             {
+                Console.Write("Количество пользователей в базе перед удалением: {0}", db.Users.Count());
                 try
                 {
+                    db.Database.ExecuteSqlCommand("TRUNCATE TABLE UserUsers");
+                    db.Database.ExecuteSqlCommand("TRUNCATE TABLE UserGroups");
+                    db.Photos.RemoveRange(db.Photos);
+                    db.Links.RemoveRange(db.Links);
                     db.PostAttachments.RemoveRange(db.PostAttachments);
+                    db.SaveChanges();
+                    Console.Write("\t☺");
                     db.Posts.RemoveRange(db.Posts);
                     db.SaveChanges();
+                    Console.Write("☻");
+                    db.Users.RemoveRange(db.Users);
+                    db.SaveChanges();
+                    Console.Write("☺\n");
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(e.Message);
+                    Console.WriteLine(e.Message);
                 }
+                Console.WriteLine("Количество пользователей в базе после удаления:  {0}\n", db.Users.Count());
+                Console.WriteLine("Количество постов, прикреплений, фотографий и ссылок в базе после удаления: {0} {1} {2} {3}", db.Posts.Count(), db.PostAttachments.Count(), db.Photos.Count(), db.Links.Count());
             }
+            timeDelete.Stop();
+            Console.WriteLine("Время на удаление: " + FormatTime(timeDelete));
         }
 
         public static String FormatTime(Stopwatch time)
