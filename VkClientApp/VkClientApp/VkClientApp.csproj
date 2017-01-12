@@ -44,7 +44,8 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="VkApiDll">
+    <Reference Include="VkApiDll, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\VkApi\VkApi\bin\Debug\VkApiDll.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />

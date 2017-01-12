@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using VkApiDll;
+using VkApiDll.Serialization;
 
 namespace VkClientApp
 {

@@ -46,14 +46,12 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="VkApiDll">
-      <HintPath>..\..\VkApi\VkApi\obj\Release\VkApiDll.dll</HintPath>
-    </Reference>
-    <Reference Include="VkClientApp">
-      <HintPath>..\..\VkClientApp\VkClientApp\obj\Release\VkClientApp.dll</HintPath>
+    <Reference Include="VkClientApp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\VkClientApp\VkClientApp\bin\Debug\VkClientApp.dll</HintPath>
     </Reference>
     <Reference Include="VkDatabaseDll">
-      <HintPath>..\..\VkDatabaseApp\VkDatabaseApp\obj\Release\VkDatabaseDll.dll</HintPath>
+      <HintPath>..\..\VkDatabaseApp\VkDatabaseApp\bin\Debug\VkDatabaseDll.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

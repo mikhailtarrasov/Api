@@ -115,17 +115,12 @@
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.30506.0\lib\net40\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
-    <Reference Include="VkApiDll">
-      <HintPath>..\..\VkDatabaseApp\VkDatabaseApp\bin\Release\VkApiDll.dll</HintPath>
-    </Reference>
-    <Reference Include="VkClientApp">
-      <HintPath>..\..\VkDatabaseApp\VkDatabaseApp\bin\Release\VkClientApp.dll</HintPath>
-    </Reference>
-    <Reference Include="VkDatabaseApp">
-      <HintPath>..\..\VkDatabaseApp\VkDatabaseApp\bin\Release\VkDatabaseApp.exe</HintPath>
+    <Reference Include="VkClientApp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\VkDatabaseApp\VkDatabaseApp\bin\Debug\VkClientApp.dll</HintPath>
     </Reference>
     <Reference Include="VkDatabaseDll">
-      <HintPath>..\..\VkDatabaseApp\VkDatabaseApp\obj\Release\VkDatabaseDll.dll</HintPath>
+      <HintPath>..\..\VkDatabaseApp\VkDatabaseApp\bin\Debug\VkDatabaseDll.dll</HintPath>
     </Reference>
     <Reference Include="WebGrease">
       <Private>True</Private>
@@ -235,6 +230,7 @@
     <Content Include="Views\Home\Index.cshtml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Views\Home\Posts.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

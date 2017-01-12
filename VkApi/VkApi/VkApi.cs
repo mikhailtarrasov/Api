@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using VkApiDll.Serialization;
 
 namespace VkApiDll
 {
@@ -11,7 +12,7 @@ namespace VkApiDll
     {
         private const int client_id = 5658746;
         private const string redirect_uri = "https://oauth.vk.com/blank.html";
-        private const string scope = "wall,friends";
+        private const string scope = "wall,friends,photos";
         private const string clientSecret = "RXPswbMZNISw6pVpp56H";
         private const string version = "5.57";
 
@@ -82,7 +83,7 @@ namespace VkApiDll
             return ParseResponse<VkApiResponse>(json).Response[0];
         }
 
-        public VkApiResponse<PostDTO> Get100Posts(String ownerId, int offset, int count)
+        public VkApiResponse<PostDTO> GetOwnerPostsFromWall(String ownerId, int offset, int count)
         {
             var parameters = new Dictionary<string, string>();
             parameters.Add("owner_id", ownerId);

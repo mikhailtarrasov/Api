@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace VkApiDll
+namespace VkApiDll.Serialization
 {
     [DataContract]
     public class VkApiResponseContent<T>
